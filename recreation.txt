@@ -1,0 +1,28 @@
+//Here, we look at expected behaviour vs the bug...
+Itcan appen because of 3 main reasons: middleware order, missing attrib's in the controller or by mismatch
+
+Good:
+
+[ApiController]
+[Router("api/[controller]")]
+[EnableCors("MyCustomPolicy")]
+
+public class BookControler : ControllerBase {}
+
+--------------------------------------------------
+In the above example, we see a case of endpoint specific cors as compared to a case of global cors where the developer misses to decorate the events controller... NOtE the order: "LOOK UP the official .NET pipeline order"
+
+
+An example is a case of two endpoints: /books and /events. One requires auth and /events does not. A mismatch occurs where UseCors is placed after UseAuthorization, any unauthorized request to /events will reject the request before CORS headers are ever attached, triggering a deceptive CORS error in the browser console. CORS is simply about that snitch-preflight request.
+---------------------------------------------------------
+
+
+[BAD]
+
+[HttpGet]
+public async Task<ActionResult<User>> GetUser(int id)
+{
+    var user = await _context.Users.FindAsync(id);
+    return user; // Returns everything  =>PasswordHash/salt
+}
+
